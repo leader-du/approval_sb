@@ -88,4 +88,31 @@ public interface IUserService extends UserDetailsService {
      * @return
      */
     CommonResult updateUser(User user);
+
+    /**
+     * 添加管理员
+     * @param user
+     * @return
+     */
+    CommonResult addAdmin(User user);
+
+    /**
+     * 获取管理员列表
+     * @return
+     */
+    CommonResult getAdminList();
+
+    /**
+     * 更新管理员
+     * @param user
+     * @return
+     */
+    CommonResult updateAdmin(User user);
+
+    /**
+     * 删除管理员
+     * @param id
+     * @return
+     */
+    CommonResult deleteAdmin(int id);
 }

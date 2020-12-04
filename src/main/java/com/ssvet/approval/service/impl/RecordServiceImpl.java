@@ -2,19 +2,19 @@ package com.ssvet.approval.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.ssvet.approval.entity.Event;
+import com.ssvet.approval.entity.Note;
 import com.ssvet.approval.entity.Record;
 import com.ssvet.approval.entity.User;
-import com.ssvet.approval.mapper.DeptMapper;
-import com.ssvet.approval.mapper.EventMapper;
-import com.ssvet.approval.mapper.RecordMapper;
-import com.ssvet.approval.mapper.UserMapper;
+import com.ssvet.approval.mapper.*;
 import com.ssvet.approval.service.IRecordService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ssvet.approval.utils.resp.CommonResult;
+import com.ssvet.approval.utils.upload.GetPath;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -43,6 +43,9 @@ public class RecordServiceImpl  implements IRecordService {
 
     @Autowired
     private DeptMapper deptMapper;
+
+    @Autowired
+    private NoteMapper noteMapper;
 
     @Override
     public CommonResult addRecord(Record record) {
@@ -78,11 +81,19 @@ public class RecordServiceImpl  implements IRecordService {
             event.setStatus(3);
 
         }
+
         // 设置当前审批人
 
         Integer approvalUserIndex = event.getApprovalUserIndex();
 
         String[] approvalPersons = event.getApprovalPersons().split(",");
+
+        // 判断是否到了最后一个审批人
+        if(status == 1 && approvalUserIndex == approvalPersons.length - 1){
+
+            event.setStatus(4);
+
+        }
 
         if(approvalUserIndex < approvalPersons.length - 1) {
 
@@ -101,12 +112,7 @@ public class RecordServiceImpl  implements IRecordService {
             }
 
         }
-        // 判断是否到了最后一个审批人
-        if(status == 1 && approvalUserIndex == approvalPersons.length - 1){
 
-            event.setStatus(4);
-
-        }
 
         // 更新event表
 
@@ -157,5 +163,72 @@ public class RecordServiceImpl  implements IRecordService {
 
 
         return CommonResult.success(e);
+    }
+
+    @Override
+    @Transactional
+    public CommonResult adminDeleteRecord(int days) {
+
+        // 查询距离现在days天的记录
+
+        List<Event> events = eventMapper.getCompletedApprovalListByDays(days);
+
+        // 删除凭证 先删除服务器上的图片
+        //获取要删除文件的名字列表
+        List<String> urls = new ArrayList<>();
+
+        for (Event event : events) {
+
+            List<Note> notes = noteMapper.selectList(new QueryWrapper<Note>().eq("note_event_id", event.getApprovalEventId()));
+
+            for (Note note : notes) {
+
+                String url = note.getApprovalNoteUrl();
+
+                url = url.substring(url.lastIndexOf("/")+1);
+
+                urls.add(url);
+
+            }
+
+            // 删除数据库中凭证信息
+
+            noteMapper.delete(new QueryWrapper<Note>().eq("note_event_id",event.getApprovalEventId()));
+
+            // 删除审批记录信息
+
+            recordMapper.delete(new QueryWrapper<Record>().eq("event_id",event.getApprovalEventId()));
+
+
+            // 删除审批事件
+
+            eventMapper.deleteById(event.getApprovalEventId());
+
+        }
+
+        // 删除服务器上的凭证信息
+
+        String uploadPath = GetPath.getUploadPath("static/upload");
+
+        File parent = new File(uploadPath);
+
+        File[] files = parent.listFiles();
+
+        for (String url : urls) {
+
+            for (File file : files) {
+
+                if(url.equals(file.getName())){
+
+                    file.delete();
+
+                    break;
+
+                }
+            }
+
+        }
+
+        return CommonResult.success("删除成功");
     }
 }

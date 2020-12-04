@@ -87,4 +87,28 @@ public class UserController {
         return userService.updateUser(user);
 
     }
+
+    @RequestMapping("/addAdmin")
+    public CommonResult addAdmin(@RequestBody User user){
+        return userService.addAdmin(user);
+
+    }
+
+    @RequestMapping("/getAdminList")
+    public CommonResult getAdminList(){
+        return userService.getAdminList();
+
+    }
+
+    @RequestMapping("/updateAdmin")
+    public CommonResult updateAdmin(@RequestBody User user){
+        return userService.updateAdmin(user);
+
+    }
+
+    @RequestMapping("/deleteAdmin")
+    public CommonResult deleteAdmin(@RequestBody User user){
+        return userService.deleteAdmin(user.getId());
+
+    }
 }

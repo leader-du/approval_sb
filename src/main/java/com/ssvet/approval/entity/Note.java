@@ -33,6 +33,8 @@ public class Note implements Serializable {
      */
     private String approvalNoteUrl;
 
+
+
     /**
      * 关联审批事件ID
      */

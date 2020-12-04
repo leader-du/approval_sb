@@ -8,4 +8,12 @@
         and status = 4
 
     </select>
+
+    <select id="getCompletedApprovalListByDays" resultType="event">
+
+        SELECT * FROM approval_event where create_date <![CDATA[<=]]> now()-interval #{days} day
+
+        <!--and status = 4  只要在规定期限内的都删除，不管审批是否完成     -->
+
+    </select>
 </mapper>

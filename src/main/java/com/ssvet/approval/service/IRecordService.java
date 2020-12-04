@@ -19,4 +19,6 @@ public interface IRecordService{
 
     CommonResult getRecord(Event event);
 
+    CommonResult adminDeleteRecord(int days);
+
 }

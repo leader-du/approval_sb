@@ -17,4 +17,6 @@ public interface EventMapper extends BaseMapper<Event> {
 
     List<Event> getCompletedApprovalList(Integer days);
 
+    List<Event> getCompletedApprovalListByDays(Integer days);
+
 }

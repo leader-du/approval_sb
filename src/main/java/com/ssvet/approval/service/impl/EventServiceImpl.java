@@ -50,21 +50,19 @@ public class EventServiceImpl implements IEventService {
     @Autowired
     private DeptMapper deptMapper;
 
+    @Autowired
+    private ApprovalFileMapper approvalFileMapper;
+
     @Transactional
     @Override
     public CommonResult getApprovalList(User user) {
         //获取需要用户审批的申请
-//        List<Event> list = eventMapper.selectList(new QueryWrapper<Event>().eq("now_approval_id", user.getId()).notIn("status",3,4));
-        List<Event> list = eventMapper.selectList(new QueryWrapper<Event>().eq("now_approval_id", user.getId()));
+        List<Event> list = eventMapper.selectList(new QueryWrapper<Event>().eq("now_approval_id", user.getId()).notIn("status",3,4));
+//        List<Event> list = eventMapper.selectList(new QueryWrapper<Event>().eq("now_approval_id", user.getId()));
 
         list = this.addAttribute(list);
 
-//        if(list.size() != 0){
-
-            return CommonResult.success(list);
-//        }
-
-//        return CommonResult.success(0);
+         return CommonResult.success(list);
 
     }
 
@@ -106,6 +104,22 @@ public class EventServiceImpl implements IEventService {
                 noteMapper.insert(notes.get(i));
             }
         }
+
+        // 存储上传的文件
+
+        List<ApprovalFile> approvalFileList = e.getApprovalFileList();
+
+        if(!StringUtils.isEmpty(approvalFileList) && approvalFileList.size() > 0){
+
+            for (ApprovalFile approvalFile : approvalFileList) {
+
+                approvalFile.setEventId(e.getApprovalEventId());
+
+                approvalFileMapper.insert(approvalFile);
+
+            }
+        }
+
         return CommonResult.success(e,"发起审批成功");
     }
 
@@ -283,6 +297,12 @@ public class EventServiceImpl implements IEventService {
             u.setDept(dept);
 
             event.setUser(u);
+
+            // 添加文件列表
+
+            List<ApprovalFile> approvalFileList = approvalFileMapper.selectList(new QueryWrapper<ApprovalFile>().eq("event_id", event.getApprovalEventId()));
+
+            event.setApprovalFileList(approvalFileList);
 
 
         }

@@ -1,14 +1,19 @@
 package com.ssvet.approval;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.ssvet.approval.entity.Event;
+import com.ssvet.approval.entity.Note;
 import com.ssvet.approval.entity.User;
-import com.ssvet.approval.mapper.UserMapper;
+import com.ssvet.approval.mapper.*;
 import com.ssvet.approval.service.IUserService;
 import com.ssvet.approval.utils.resp.CommonResult;
+import com.ssvet.approval.utils.upload.GetPath;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,10 +23,19 @@ import java.util.List;
 public class TestJ {
 
     @Autowired
+    private RecordMapper recordMapper;
+
+    @Autowired
+    private EventMapper eventMapper;
+
+    @Autowired
     private UserMapper userMapper;
 
     @Autowired
-    private IUserService userService;
+    private DeptMapper deptMapper;
+
+    @Autowired
+    private NoteMapper noteMapper;
 
     @Test
     public void bCryptPasswordEncoder(){
@@ -33,8 +47,6 @@ public class TestJ {
     @Test
     public void test(){
 
-
-        userService.getUserByChname("王磊");
 
     }
 

@@ -229,7 +229,7 @@ public class UserServiceImpl implements IUserService {
 
         QueryWrapper<User> wrapper = new QueryWrapper<>();
 
-        wrapper.eq("ch_name",chName);
+        wrapper.eq("ch_name",chName).notIn("dept_id",42); //排除掉管理员
 
         List<User> users = userMapper.selectList(wrapper);
 
@@ -306,9 +306,83 @@ public class UserServiceImpl implements IUserService {
     @Transactional
     public CommonResult updateUser(User user) {
 
+        User oldUser = userMapper.selectById(user.getId());
+
+        if(!oldUser.getPassword().equals(user.getPassword())){
+
+            String pw = passwordEncoder.encode(user.getPassword());
+
+            user.setPassword(pw);
+
+        }
+
         userMapper.updateById(user);
 
         return CommonResult.success("更新成功");
+    }
+
+    @Override
+    @Transactional
+    public CommonResult addAdmin(User user) {
+        //设置部门
+        user.setDeptId(42);
+
+        user.setStatus(4);
+
+        // 密码加密
+
+        String password = passwordEncoder.encode(user.getPassword());
+
+        user.setPassword(password);
+
+        userMapper.insert(user);
+        //用户 角色中间表数据
+        UserRole userRole = new UserRole();
+
+        userRole.setUrUserId(user.getId());
+
+        userRole.setUrRoleId(21);
+
+        userRoleMapper.insert(userRole);
+
+        return CommonResult.success("添加成功");
+    }
+
+    @Override
+    public CommonResult getAdminList() {
+
+        List<User> list = userMapper.selectList(new QueryWrapper<User>().eq("status", 4));
+
+        return CommonResult.success(list);
+    }
+
+    @Override
+    public CommonResult updateAdmin(User user) {
+
+        User oldUser = userMapper.selectById(user.getId());
+
+        if(!oldUser.getPassword().equals(user.getPassword())){
+
+            String pw = passwordEncoder.encode(user.getPassword());
+
+            user.setPassword(pw);
+
+        }
+
+        userMapper.updateById(user);
+
+        return CommonResult.success("更新成功");
+    }
+
+    @Override
+    @Transactional
+    public CommonResult deleteAdmin(int id) {
+
+        userRoleMapper.delete(new QueryWrapper<UserRole>().eq("ur_user_id",id));
+
+        userMapper.deleteById(id);
+
+        return CommonResult.success("删除成功");
     }
 
     @Override

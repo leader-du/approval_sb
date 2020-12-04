@@ -69,4 +69,7 @@ public class Record implements Serializable {
 
     @TableField(exist = false)
     private Event event;
+
+    @TableField(exist = false)
+    private Integer days;
 }

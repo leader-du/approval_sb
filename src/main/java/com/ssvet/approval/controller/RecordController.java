@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -37,6 +38,14 @@ public class RecordController {
     public CommonResult addRecord(@RequestBody Record record){
 
         return recordService.addRecord(record);
+
+    }
+
+    @RequestMapping("/adminDeleteRecord")
+    public CommonResult adminDeleteRecord(@RequestBody Record record){
+
+
+        return recordService.adminDeleteRecord(record.getDays());
 
     }
 

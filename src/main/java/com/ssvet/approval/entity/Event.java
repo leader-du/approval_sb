@@ -108,4 +108,7 @@ public class Event implements Serializable {
 
     @TableField(exist = false)
     private Integer days;
+
+    @TableField(exist = false)
+    private List<ApprovalFile> approvalFileList;
 }
